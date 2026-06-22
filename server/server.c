@@ -68,6 +68,7 @@ int main(void) { /*{{{*/
     }
 } /*}}}*/
 
+// todo: delete unused function + users
 void disp_status(void) { /* {{{ */ return; } /* }}} */
 
 /* The dispatcher is responsible for polling the currently running job (if one
@@ -90,6 +91,7 @@ void* dispatcher(void* args UNUSED) { /*{{{*/
             /* There is a currently running job. Time or Cmd.
              * This code checks if the current job is ready to end. */
 
+            // FIXME: TOCTOU on running_job vs is_running
             switch (running_job->job.job_type) {
                 case JOB_TIMESLOT: {
                     if (running_job->manually_released || time(NULL) >= running_job->job.timeslot.t_end) {
@@ -108,6 +110,7 @@ void* dispatcher(void* args UNUSED) { /*{{{*/
                 case JOB_CMD: {
                     pthread_mutex_lock(&mut_rj);
                     if (running_job->manually_released) {
+                        // TODO: This does not try to terminate the command job, should it?
                         free_queued_job(running_job);
                         running_job = NULL;
                         pthread_mutex_unlock(&mut_rj);
